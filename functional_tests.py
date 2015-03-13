@@ -1,4 +1,5 @@
 from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
 import unittest
 
 
@@ -19,18 +20,32 @@ class NewVisitorTest(unittest.TestCase):
         # She notices the page title and header mention to-do lists
         # assert 'To-Do' in browser.title, "Browser title was " + browser.title
         self.assertIn('To-Do', self.browser.title)
-        self.fail("Finish the test!")
+        header_text = self.browser.find_element_by_tag_name('h1').text
+        self.assertIn('To-Do', header_text)
 
         # She is invited to enter a to-do item right away
+        inputbox = self.browser.find_element_by_id('id_new_item')
+        self.assertEqual(inputbox.get_attribute('placeholder'),
+                         'Enter a to-do item'
+                         )
 
         # She types "Buy peacock feathers" into a text box as it's her hobby
+        inputbox.send_keys('Buy peacock feathers')
 
         # When she hits Enter, the page updates, and the now the page lists:
         # "1: Buy peacoock feathers" as an item in to-do list.
+        inputbox.send_keys(Keys.ENTER)
+
+        table = self.browser.find_element_by_id('id_list_table')
+        rows = table.find_elements_by_tag_name('tr')
+        self.assertTrue(
+            any(row.text == "1: Buy peacock feathers" for row in rows)
+        )
 
         # There is still a text box inviting her to make another input. She
         # inputs:
         # "Use peacock feathers to make a fly"
+        self.fail("Finish the test!")
 
         # The page updates again and not mentions both the items in to-do list
 
@@ -41,7 +56,6 @@ class NewVisitorTest(unittest.TestCase):
         # She visits that URL - her to-do list is still there.
 
         # Satisfied, she goes back to sleep
-
 
 if __name__ == "__main__":
     unittest.main(warnings='ignore')
